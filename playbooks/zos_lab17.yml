@@ -1,0 +1,32 @@
+---
+- name: Create COBOL and REXX PDSEs
+  hosts: zos
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  tasks:
+    - name: Create COBOL development library
+      ibm.ibm_zos_core.zos_data_set:
+        name: JAMESP.DEV.COBOL
+        type: pdse
+        state: present
+        replace: true
+        space_primary: 5
+        space_secondary: 2
+        space_type: cyl
+        record_format: fb
+        record_length: 80
+        directory_blocks: 10
+
+    - name: Create REXX test library
+      ibm.ibm_zos_core.zos_data_set:
+        name: JAMESP.TST.REXX
+        type: pdse
+        state: present
+        replace: true
+        space_primary: 5
+        space_secondary: 2
+        space_type: cyl
+        record_format: fb
+        record_length: 80
+        directory_blocks: 10
