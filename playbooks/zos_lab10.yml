@@ -8,7 +8,7 @@
     - name: Allocate QSAM data set
       ibm.ibm_zos_core.zos_tso_command:
         commands:
-          - "ALLOCATE DATASET('JAMES.LAB10') NEW CATALOG SPACE(2,4) TRACKS RECFM(F B) LRECL(80) BLKSIZE(8000) DSORG(PS)"
+          - "ALLOCATE DATASET('JAMES.LAB11') NEW CATALOG SPACE(2,4) TRACKS RECFM(F B) LRECL(80) BLKSIZE(8000) DSORG(PS)"
       register: result
 
     - name: Display result
