@@ -1,0 +1,30 @@
+
+---
+- name: Create PDSE library
+  ibm.ibm_zos_core.zos_data_set:
+    name: "{{ HLQ }}.{{ library }}"
+    type: pdse
+    state: present
+    replace: true
+    space_primary: 5
+    space_secondary: 2
+    space_type: cyl
+    record_format: fb
+    record_length: 80
+    directory_blocks: 10
+
+- name: Populate PDSE with members
+  ibm.ibm_zos_core.zos_copy:
+    content: "{{ member.content }}"
+    dest: "{{ HLQ }}.{{ library }}({{ member.name }})"
+    encoding:
+      from: UTF-8
+      to: IBM-037
+  loop:
+    - name: INFO
+      content: "ABC"
+    - name: HELLO
+      content: "XYZ"
+  loop_control:
+    loop_var: member
+    pause: 5

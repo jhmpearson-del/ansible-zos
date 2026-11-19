@@ -1,0 +1,21 @@
+
+---
+- name: Provision developer PDSE libraries
+  hosts: zos
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  vars:
+    libraries:
+      - DEV.COBOL
+      - TST.REXX
+
+  tasks:
+    - name: Provision each PDSE library
+      ansible.builtin.include_role:
+        name: provision_pdse
+      loop: "{{ libraries }}"
+      loop_control:
+        loop_var: library
+        label: "{{ HLQ }}.{{ library }}"
+        pause: 3
