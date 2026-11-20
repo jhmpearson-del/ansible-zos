@@ -1,0 +1,29 @@
+
+---
+- name: Lab 5 - RACF user provisioning
+  hosts: zos
+  gather_facts: false
+  environment: "{{ environment_vars }}"
+
+  vars:
+    racf_users:
+      - userid: DUSR31
+        home: /u/dusr31
+      - userid: DUSR32
+        home: /u/dusr32
+
+  tasks:
+    - name: Provision each RACF user
+      ansible.builtin.include_role:
+        name: racf_user
+      loop: "{{ racf_users }}"
+      loop_control:
+        loop_var: racf_user
+        label: "{{ racf_user.userid }}"
+
+    - name: Refresh RACF access lists
+      ibm.ibm_zos_core.zos_tso_command:
+        commands:
+          - "SETROPTS RACLIST(TSOPROC ACCTNUM) REFRESH"
+          - "SETROPTS GENERIC(DATASET) REFRESH"
+

@@ -1,0 +1,55 @@
+
+---
+- name: Delete existing dataset profiles
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "DELDSD '{{ racf_user.userid }}.**'"
+    max_rc: 4
+
+- name: Delete existing RACF user
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "DELUSER {{ racf_user.userid }}"
+    max_rc: 8
+ 
+- name: Create RACF user
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "ADDUSER {{ racf_user.userid }} MODEL(DEVMOD) DFLTGRP(DEVGRP) PASSWORD(INITPASS)"
+
+- name: Set TSO attributes
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "ALTUSER {{ racf_user.userid }} TSO(ACCTNUM(ACCT001) SIZE(2096128) PROC(DB13PROC) COMMAND(ISPF))"
+
+- name: Set OMVS attributes
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "ALTUSER {{ racf_user.userid }} OMVS(AUTOUID HOME('{{ racf_user.home }}') PROGRAM('/bin/sh'))"
+
+- name: Permit access to TSO accounting
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "PERMIT ACCT001 CLASS(ACCTNUM) ID({{ racf_user.userid }}) ACCESS(READ)"
+
+- name: Permit access to TSO procedure
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "PERMIT DB13PROC CLASS(TSOPROC) ID({{ racf_user.userid }}) ACCESS(READ)"
+
+- name: Create generic dataset profile
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "ADDSD '{{ racf_user.userid }}.**' GENERIC UACC(NONE)"
+    max_rc: 4
+
+- name: Permit ALTER access to own datasets
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "PERMIT '{{ racf_user.userid }}.**' CLASS(DATASET) ID({{ racf_user.userid }}) ACCESS(ALTER)"
+
+- name: Permit READ access to SYS1 datasets
+  ibm.ibm_zos_core.zos_tso_command:
+    commands:
+      - "PERMIT 'SYS1.**' CLASS(DATASET) ID({{ racf_user.userid }}) ACCESS(READ)"
+
